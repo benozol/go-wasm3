@@ -129,6 +129,17 @@ This is a WIP. Stay tuned!
 
 A Rust wrapper is available [here](https://github.com/Veykril/wasm3-rs).
 
+## Compilation of the wasm library
+
+Execute in `wasm3/source`
+
+```shell
+SDKPATH=$(xcrun --sdk iphoneos --show-sdk-path)
+CLANG=$(xcrun --sdk iphoneos --find clang)
+for f in *.c; ( echo $f; $CLANG -isysroot "$SDKPATH" -arch arm64 -arch armv7 -arch armv7s -c "$f" -o "$(basename "$f" .c).o" -fembed-bitcode-marker )
+ar rcs libm3.a *.o
+```
+
 ## License
 
 [MIT](https://github.com/matiasinsaurralde/go-wasm3/blob/master/LICENSE).
