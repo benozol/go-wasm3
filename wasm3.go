@@ -9,6 +9,8 @@ package wasm3
 #include "m3_api_libc.h"
 #include "m3_api_wasi.h"
 #include "m3_env.h"
+#define M3_COMPILE_OPCODES
+#include "m3_exec.h"
 #include "go-wasm3.h"
 
 // module_get_function is a helper function for the module Go struct
@@ -34,7 +36,11 @@ int call(IM3Function i_function, uint32_t i_argc, int i_argv[]) {
 		set_error(call_result);
 		return -1;
 	}
-	switch (ftype->returnType) {
+    if (GetFuncTypeNumResults(ftype) > 1) {
+		set_error("more than one return values");
+    	return -1;
+    }
+	switch (GetFuncTypeResultType(ftype, 0)) {
 		case c_m3Type_i32:
 			result = *(u32*)(stack);
 			break;
@@ -75,6 +81,7 @@ type ResultT C.M3Result
 var(
 	errParseModule = errors.New("Parse error")
 	errLoadModule = errors.New("Load error")
+	errWasiNotSupported = errors.New("WASI not supported")
 	errFuncLookupFailed = errors.New("Function lookup failed")
 )
 
@@ -124,7 +131,8 @@ func(r *Runtime) Load(wasmBytes []byte) (*Module, error) {
 		return nil, errors.New("LinkSpecTest failed")
 	}
 	if r.cfg.EnableWASI {
-		C.m3_LinkWASI(r.Ptr().modules)
+		// C.m3_LinkWASI(r.Ptr().modules)
+		return nil, errWasiNotSupported
 	}
 	m := NewModule((ModuleT)(module))
 	return m, nil
@@ -145,7 +153,8 @@ func(r *Runtime) LoadModule(module *Module) (*Module, error) {
 		return nil, errors.New("LinkSpecTest failed")
 	}
 	if r.cfg.EnableWASI {
-		C.m3_LinkWASI(r.Ptr().modules)
+		// C.m3_LinkWASI(r.Ptr().modules)
+		return nil, errWasiNotSupported
 	}
 	return module, nil
 }
@@ -237,7 +246,7 @@ func(m *Module) GetFunction(index uint) (*Function, error) {
 		return nil, errFuncLookupFailed
 	}
 	ptr := C.module_get_function(m.Ptr(), C.int(index))
-	name := C.GoString(ptr.name)
+	name := C.GoString(ptr.names[0])
 	return &Function{
 		ptr: (FunctionT)(ptr),
 		Name: name,
@@ -250,7 +259,7 @@ func(m *Module) GetFunctionByName(lookupName string) (*Function, error) {
 	var fn *Function
 	for i :=0 ; i < m.NumFunctions(); i++ {
 		ptr := C.module_get_function(m.Ptr(), C.int(i))
-		name := C.GoString(ptr.name)
+		name := C.GoString(ptr.names[0])
 		if name != lookupName {
 			continue	
 		}
@@ -304,7 +313,7 @@ func(f *Function) CallWithArgs(args... string) {
 		cVal := C.CString(v)
 		cArgs[i] = cVal
 	}
-	C.m3_CallWithArgs(f.Ptr(), C.uint(length), &cArgs[0])
+	C.m3_CallArgv(f.Ptr(), C.uint(length), &cArgs[0])
 }
 
 // Call implements a better call function
