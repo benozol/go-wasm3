@@ -2,7 +2,7 @@ package wasm3
 
 /*
 #cgo darwin CFLAGS: -Iinclude
-#cgo darwin LDFLAGS: -L${SRCDIR}/lib/darwin -lm3
+#cgo darwin LDFLAGS: -F${SRCDIR}/lib/darwin -framework Security -framework m3
 #cgo linux CFLAGS: -Iinclude
 #cgo linux LDFLAGS: -L${SRCDIR}/lib/linux -lm3 -lm
 
