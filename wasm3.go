@@ -1,10 +1,15 @@
 package wasm3
 
 /*
-#cgo darwin CFLAGS: -Iinclude
-#cgo darwin LDFLAGS: -L${SRCDIR}/lib/darwin -lm3
-#cgo linux CFLAGS: -Iinclude
-#cgo linux LDFLAGS: -L${SRCDIR}/lib/linux -lm3 -lm
+#cgo CFLAGS: -Iinclude
+#cgo LDFLAGS: -L${SRCDIR}/lib
+#cgo darwin LDFLAGS: -framework Security 
+#cgo darwin,!ios LDFLAGS: -lm3_macos
+#cgo darwin,ios,iossimulator LDFLAGS: -lm3_iphonesimulator
+#cgo darwin,ios,!iossimulator LDFLAGS: -lm3_iphoneos
+#cgo linux,android LDFLAGS: -lm3_android
+#cgo linux,!android LDFLAGS: -lm3_linux
+#cgo linux LDFLAGS: -lm
 
 #include "m3_api_libc.h"
 #include "m3_api_wasi.h"
