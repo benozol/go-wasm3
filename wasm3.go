@@ -7,8 +7,9 @@ package wasm3
 #cgo darwin,!ios LDFLAGS: -lm3_macos
 #cgo darwin,ios,iossimulator LDFLAGS: -lm3_iphonesimulator
 #cgo darwin,ios,!iossimulator LDFLAGS: -lm3_iphoneos
-#cgo linux,android LDFLAGS: -lm3_android
-#cgo linux,!android LDFLAGS: -lm3_linux
+#cgo linux,android,arm64 LDFLAGS: -lm3_android_aarch64
+#cgo linux,android,amd64 LDFLAGS: -lm3_android_x86_64
+#cgo linux,!android,amd64 LDFLAGS: -lm3_linux_x86_64
 #cgo linux LDFLAGS: -lm
 
 #include "m3_api_libc.h"

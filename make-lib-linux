@@ -15,15 +15,18 @@ compile() {
     echo $platform-$arch
     for f in source/*.c; do
         echo - $f
-        "$clang" -target "$target" -Dd_m3HasWASI -fPIC -c "$f" -o "$(basename "$f" .c)_${platform}_${arch}.o"
+        "$clang" -Dd_m3HasWASI -fPIC -c "$f" -o "$(basename "$f" .c)_${platform}_${arch}.o"
     done
     "$ar" rcs libm3_${platform}_${arch}.a *_${platform}_${arch}.o
 }
 
 compile android aarch64 "$NDKBIN/aarch64-linux-android21-clang" "aarch64-linux-android21" "$NDKBIN/aarch64-linux-android-ar"
 compile android x86_64 "$NDKBIN/x86_64-linux-android21-clang" "x86_64-linux-android21" "$NDKBIN/x86_64-linux-android-ar"
-compile linux amd64 clang x86_64-pc-linux-gnu ar
+compile linux x86_64 clang x86_64-pc-linux-gnu ar
 
-for platform in android linux; do
-    ar rcs libm3_${platform}.a *_${platform}_*.o
-done
+# "$NDKBIN/ar" rcs libm3_android.a *_android_*.o
+# ar rcs libm3_linux.a *_linux_*.o
+
+# for platform in android linux; do
+#     ar rcs libm3_${platform}.a *_${platform}_*.o
+# done
