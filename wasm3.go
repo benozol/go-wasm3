@@ -1,16 +1,16 @@
 package wasm3
 
 /*
-#cgo CFLAGS: -Iinclude
-#cgo LDFLAGS: -L${SRCDIR}/lib
-#cgo darwin LDFLAGS: -framework Security 
-#cgo darwin,!ios LDFLAGS: -lm3_macos
-#cgo darwin,ios,iossimulator LDFLAGS: -lm3_iphonesimulator
-#cgo darwin,ios,!iossimulator LDFLAGS: -lm3_iphoneos
-#cgo linux,android,arm64 LDFLAGS: -lm3_android_aarch64
-#cgo linux,android,amd64 LDFLAGS: -lm3_android_x86_64
-#cgo linux,!android,amd64 LDFLAGS: -lm3_linux_x86_64
-#cgo linux LDFLAGS: -lm
+#cgo                                 CFLAGS: -I${SRCDIR}/include
+#cgo darwin                          LDFLAGS: -framework Security -lm
+#cgo darwin,ios,arm64                LDFLAGS: -L${SRCDIR}/lib/iphoneos-arm64
+#cgo darwin,iossimulator,arm64       LDFLAGS: -L${SRCDIR}/lib/iphonesimulator-arm64
+#cgo darwin,iossimulator,amd64       LDFLAGS: -L${SRCDIR}/lib/iphonesimulator-x86_64
+#cgo darwin,!ios,!iossimulator,amd64 LDFLAGS: -L${SRCDIR}/lib/macosx-x86_64
+#cgo linux                           LDFLAGS: -lm3 -lm
+#cgo linux,android,arm64             LDFLAGS: -L${SRCDIR}/lib/android-aarch64
+#cgo linux,android,amd64             LDFLAGS: -L${SRCDIR}/lib/android-x86_64
+#cgo linux,!android,amd64            LDFLAGS: -L${SRCDIR}/lib/linux-x86_64
 
 #include "m3_api_libc.h"
 #include "m3_api_wasi.h"

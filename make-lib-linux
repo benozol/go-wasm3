@@ -2,31 +2,41 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-HOSTTAG=linux-x86_64
-NDK=/usr/lib/android-sdk/ndk-bundle
-NDKBIN=$NDK/toolchains/llvm/prebuilt/$HOSTTAG/bin
+LIBNAME=libm3.a
 
-compile() {
+compile_linux() {
     platform=$1
     arch=$2
     clang=$3
     target=$4
     ar=$5
-    echo $platform-$arch
-    for f in source/*.c; do
-        echo - $f
-        "$clang" -Dd_m3HasWASI -fPIC -c "$f" -o "$(basename "$f" .c)_${platform}_${arch}.o"
-    done
-    "$ar" rcs libm3_${platform}_${arch}.a *_${platform}_${arch}.o
+    id=$platform-$arch
+    objdir=objects-$id
+    rm -rf "$objdir"
+    mkdir "$objdir"
+    (cd $objdir
+     for f in ../source/*.c; do
+         "$clang" -c "$f"  -target "$target" -Dd_m3HasWASI -fPIC
+     done)
+    mkdir -p "lib/$id"
+    "$ar" rcs "lib/$id/$LIBNAME" "$objdir"/*
 }
 
-compile android aarch64 "$NDKBIN/aarch64-linux-android21-clang" "aarch64-linux-android21" "$NDKBIN/aarch64-linux-android-ar"
-compile android x86_64 "$NDKBIN/x86_64-linux-android21-clang" "x86_64-linux-android21" "$NDKBIN/x86_64-linux-android-ar"
-compile linux x86_64 clang x86_64-pc-linux-gnu ar
-
-# "$NDKBIN/ar" rcs libm3_android.a *_android_*.o
-# ar rcs libm3_linux.a *_linux_*.o
-
-# for platform in android linux; do
-#     ar rcs libm3_${platform}.a *_${platform}_*.o
-# done
+for arg in $@; do
+    if [ "$arg" = linux -o "$arg" = linux-x86_64 ]; then
+        compile_linux linux x86_64 clang x86_64-pc-linux-gnu ar
+    elif [ "$arg" = android -o "$arg" = android-aarch64 ]; then
+        HOSTTAG=linux-x86_64
+        NDK=/usr/lib/android-sdk/ndk-bundle
+        NDKBIN=$NDK/toolchains/llvm/prebuilt/$HOSTTAG/bin
+        compile_linux android aarch64 "$NDKBIN/aarch64-linux-android21-clang" "aarch64-linux-android21" "$NDKBIN/aarch64-linux-android-ar"
+    elif  [ "$arg" = android -o "$arg" = android-x86_64 ]; then
+        HOSTTAG=linux-x86_64
+        NDK=/usr/lib/android-sdk/ndk-bundle
+        NDKBIN=$NDK/toolchains/llvm/prebuilt/$HOSTTAG/bin
+        compile_linux android x86_64 "$NDKBIN/x86_64-linux-android21-clang" "x86_64-linux-android21" "$NDKBIN/x86_64-linux-android-ar"
+    else
+        echo "unknown combo: $arg" 1>&2
+        exit 1
+    fi
+done
