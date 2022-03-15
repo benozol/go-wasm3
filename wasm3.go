@@ -1,5 +1,9 @@
 package wasm3
 
+// using `-framework m3 F${SRCDIR}/lib` on darwin fails with the following error
+// ld: framework not found m3
+// clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
 /*
 #cgo                                 CFLAGS:  -I${SRCDIR}/include
 #cgo darwin                          LDFLAGS: -framework Security -lm -framework m3 -F${SRCDIR}/lib
